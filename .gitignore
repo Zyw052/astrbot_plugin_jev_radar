@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+.venv/
+venv/
+
+# AstrBot 运行时数据目录（含配置/凭证，严禁入库）
+data/
+**/data/config/*jev*_config.json
+*.local.json
+.env
+.env.*
+
+# 系统
+.DS_Store
+Thumbs.db

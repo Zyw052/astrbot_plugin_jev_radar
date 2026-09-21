@@ -1,0 +1,112 @@
+{
+  "enable": {
+    "description": "总开关",
+    "type": "bool",
+    "hint": "关闭后插件完全停用，不监听、不调用、不提醒。",
+    "default": true
+  },
+  "api_key": {
+    "description": "TypeSafe API Key",
+    "type": "string",
+    "hint": "在 https://console.typesafe.ai 获取。仅保存在本机 data/config 下，请勿泄露；留空则无法调用。",
+    "obvious_hint": true,
+    "default": ""
+  },
+  "base_url": {
+    "description": "TypeSafe 接口地址",
+    "type": "string",
+    "hint": "默认 https://api.typesafe.ai，实际请求 POST {base_url}/v1/systemone。",
+    "default": "https://api.typesafe.ai"
+  },
+  "model": {
+    "description": "Jev 模型名",
+    "type": "string",
+    "hint": "默认 jev-latest；另有 jev-preview。",
+    "default": "jev-latest"
+  },
+  "timeout_sec": {
+    "description": "请求超时（秒）",
+    "type": "int",
+    "hint": "单次请求的超时时间，默认 20 秒。",
+    "default": 20
+  },
+  "retries": {
+    "description": "失败重试次数",
+    "type": "int",
+    "hint": "仅对 429/503/529（限流/过载）重试，默认 1 次；其它错误不重试。",
+    "default": 1
+  },
+  "confidence_threshold": {
+    "description": "置信度阈值",
+    "type": "float",
+    "hint": "意图置信度低于此值时标为「存疑」并在被动模式触发提醒，默认 0.75。",
+    "default": 0.75
+  },
+  "risk_alert_threshold": {
+    "description": "风险提醒阈值",
+    "type": "int",
+    "hint": "风险等级 0=安全 / 1=关注 / 2=高危；达到或超过此值触发提醒，默认 2。",
+    "default": 2
+  },
+  "daily_call_limit": {
+    "description": "每日调用上限",
+    "type": "int",
+    "hint": "费用保护：每日最多调用次数，0 表示不限，默认 2000。",
+    "default": 2000
+  },
+  "passive_enabled": {
+    "description": "启用被动模式",
+    "type": "bool",
+    "hint": "开启后自动监听消息判定意图，仅在低置信/高风险/关注意图时提醒。默认关闭，避免打扰与额外费用。",
+    "default": false
+  },
+  "scope_group": {
+    "description": "群聊生效",
+    "type": "bool",
+    "hint": "被动模式下是否处理群聊消息，默认开启。",
+    "default": true
+  },
+  "scope_private": {
+    "description": "私聊生效",
+    "type": "bool",
+    "hint": "被动模式下是否处理私聊消息，默认关闭。",
+    "default": false
+  },
+  "group_whitelist": {
+    "description": "群白名单",
+    "type": "list",
+    "hint": "填入群号，留空表示所有群均生效。仅被动模式使用。",
+    "default": []
+  },
+  "watch_intents": {
+    "description": "关注意图（命中即提醒）",
+    "type": "list",
+    "hint": "被动模式下，判定为这些意图时即使置信度高也会提醒。",
+    "default": ["推销", "引战", "诈骗", "拉人"]
+  },
+  "desensitize": {
+    "description": "发送前本地脱敏",
+    "type": "bool",
+    "hint": "开启后将手机号/邮箱/身份证/银行卡/超长数字替换为占位符再发送，默认开启。",
+    "default": true
+  },
+  "max_chars_per_msg": {
+    "description": "单条消息裁剪长度",
+    "type": "int",
+    "hint": "超过此长度的文本会被截断后再发送，默认 800。",
+    "default": 800
+  },
+  "result_style": {
+    "description": "结果展示样式",
+    "type": "string",
+    "options": ["详细", "简洁"],
+    "hint": "详细=多行含置信度；简洁=单行摘要。",
+    "default": "详细"
+  },
+  "log_decisions": {
+    "description": "记录判定日志",
+    "type": "bool",
+    "hint": "开启后将判定结果写入 data/plugin_data/ 下的 decisions.jsonl（仅含消息哈希，不含原文），默认关闭。",
+    "default": false
+  }
+}

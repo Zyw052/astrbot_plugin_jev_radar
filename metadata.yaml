@@ -1,0 +1,36 @@
+name: astrbot_plugin_jev_radar
+display_name: Jev 意图雷达
+short_desc: 用 TypeSafe Jev 读懂消息背后的意图、情绪与风险，仅在低置信或高风险时提醒。
+desc: |
+  Jev 意图雷达基于 TypeSafe SystemOne（Jev）的 typed decision 能力，把群聊/私聊消息
+  实时判定为「意图标签 + 情绪倾向 + 风险等级 + 置信度」，帮你看懂消息背后的真实意图。
+
+  特性：
+  - 被动模式：自动监听消息判定，仅当「低置信 / 高风险 / 关注意图」时才提醒，绝不刷屏；默认关闭。
+  - 主动模式：/jev <文本> 或引用一条消息后 /jev，即时输出意图 + 情绪 + 风险 + 置信度。
+  - 试运行：/jev dry <文本> 只回显将要发送的内容，便于调试。
+  - 费用保护：支持每日调用上限、群白名单、范围开关。
+  - 隐私合规：本地脱敏（手机号/邮箱/身份证/银行卡），默认只记录判定结果与消息哈希，不落原文。
+
+  ⚠️ 隐私声明：启用后，被判定消息的文本会发送至第三方 TypeSafe AI（api.typesafe.ai）进行判定，
+  请自行评估数据敏感度与合规要求。
+
+  灵感来源：TypeSafe SystemOne / Jev（https://typesafe.ai），本插件为独立实现。
+version: 1.0.0
+author: YongWei
+repo: ""  # 未推送远端仓库，待上架前置完成后补全 HTTPS GitHub URL
+license: MIT
+astrbot_version: ">=4.5.7"
+support_platforms:
+  - aiocqhttp
+  - qq_official
+  - telegram
+  - lark
+  - discord
+  - slack
+tags:
+  - 意图识别
+  - 群聊风控
+  - Jev
+  - SystemOne
+  - TypeSafe
