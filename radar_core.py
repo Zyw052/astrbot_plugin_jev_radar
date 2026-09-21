@@ -7,7 +7,7 @@
   - 提醒策略判定（低置信 / 高风险 / 关注意图）
   - 结果格式化（简洁 / 详细）
 
-规范依据：`/AstrBot/data/docs/astrbot_plugin_dev_guide.md`
+开发规范依据（AstrBot 插件开发规范）
   - §10.4 工程原则：功能需经测试、良好注释、良好错误处理
   - §10.2 网络请求禁用 requests（本模块不含网络，网络见 jev_client.py）
 

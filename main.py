@@ -3,7 +3,7 @@
 定位：用 TypeSafe SystemOne（Jev）的 typed decision 能力，把消息判定为
 「意图标签 + 情绪 + 风险等级 + 置信度」，仅在低置信 / 高风险 / 关注意图时提醒。
 
-规范依据（`/AstrBot/data/docs/astrbot_plugin_dev_guide.md`）：
+开发规范依据（AstrBot 插件开发规范）：
   - §3.1  文件必须命名 main.py，主类继承 Star，__init__ 收 Context
   - §4.1  新式指令注册 @filter.command("xxx", alias={...})
   - §4.3  事件过滤 @filter.event_message_type(...)

@@ -4,7 +4,7 @@
   - §10.2 网络请求：仅用 aiohttp/httpx（异步），禁止 requests
   - §10.4 工程原则：良好错误处理，不让插件因单个错误崩溃
 
-接口（依据 /AstrBot/data/reports/Jev-API调研_20260921.md 与实测报告）：
+接口（依据 TypeSafe SystemOne 官方文档与实测报告）：
   POST {base_url}/v1/systemone
   Header: Authorization: Bearer <key>, Content-Type: application/json
   Body:   {"state": "<文本>", "model": "<model>", "questions": {...}}

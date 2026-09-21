@@ -18,7 +18,7 @@ desc: |
   灵感来源：TypeSafe SystemOne / Jev（https://typesafe.ai），本插件为独立实现。
 version: 1.0.0
 author: YongWei
-repo: ""  # 未推送远端仓库，待上架前置完成后补全 HTTPS GitHub URL
+repo: https://github.com/Zyw052/astrbot_plugin_jev_radar
 license: MIT
 astrbot_version: ">=4.5.7"
 support_platforms:
