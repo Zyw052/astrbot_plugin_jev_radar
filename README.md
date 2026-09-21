@@ -1,5 +1,9 @@
 # Jev 意图雷达 · astrbot_plugin_jev_radar
 
+<p align="center">
+  <img src="assets/logo.png" alt="Jev 意图雷达 Logo" width="180" height="180">
+</p>
+
 > **帮你看懂消息背后的意图。**
 
 用 [TypeSafe SystemOne（Jev）](https://typesafe.ai) 的 typed decision 能力，把群聊 / 私聊消息实时判定为
