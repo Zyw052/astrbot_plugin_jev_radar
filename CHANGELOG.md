@@ -3,6 +3,16 @@
 本文件记录 `astrbot_plugin_jev_radar`（Jev 意图雷达）的版本变更。
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.0.1] - 2026-09-21
+
+### 新增 Added
+- 补充 **文档 / 更新日志**（CHANGELOG.md），记录版本变更历史。
+- **README 增补**：完善使用说明与更新日志章节、隐私声明。
+
+### 说明 Notes
+- 本版本为 **市场同步准备发版**：以正式 tag + GitHub Release 形式对外发布，便于 AstrBot 插件市场与网页端抓取「更新日志」。
+- 功能与 1.0.0 一致，无破坏性变更。
+
 ## [1.0.0] - 2026-09-21
 
 ### 新增 Added
@@ -20,4 +30,5 @@
 ### 许可 License
 - MIT © 2026 **YongWei**
 
+[1.0.1]: https://github.com/Zyw052/astrbot_plugin_jev_radar/releases/tag/v1.0.1
 [1.0.0]: https://github.com/Zyw052/astrbot_plugin_jev_radar/releases/tag/v1.0.0

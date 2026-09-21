@@ -16,7 +16,7 @@ desc: |
   请自行评估数据敏感度与合规要求。
 
   灵感来源：TypeSafe SystemOne / Jev（https://typesafe.ai），本插件为独立实现。
-version: 1.0.0
+version: 1.0.1
 author: YongWei
 repo: https://github.com/Zyw052/astrbot_plugin_jev_radar
 license: MIT
