@@ -14,7 +14,7 @@
 
 - 作者：**YongWei**
 - 许可：**MIT**（见 [LICENSE](LICENSE)）
-- 版本：1.0.0
+- 版本：1.1.0
 
 ---
 
@@ -26,6 +26,7 @@
 4. **不落原文**：默认只记录「判定结果 + 消息哈希」，不保存原始消息文本；`log_decisions` 默认关闭。
 5. **可退出**：`enable=false` 即完全停用；`scope_group` / `scope_private` / `group_whitelist` 可精确控制生效范围。
 6. **密钥安全**：`api_key` 仅保存在本机 `data/config/` 下，**不硬编码、不入库、不随仓库分发**。
+7. **回复副驾（v1.1.0）额外披露**：启用副驾后，脱敏后的消息文本会①随判定发往 TypeSafe、②在起草时发往宿主 AstrBot 配置的 LLM Provider；副驾候选回复**只推送给主人**，永不向原会话发送。
 
 ---
 
@@ -47,6 +48,13 @@
 ### 其他控制
 - 群白名单 `group_whitelist`、群/私聊范围开关
 - 每日调用上限 `daily_call_limit`（费用保护）
+
+### 回复副驾（v1.1.0，默认关闭）
+Jev 当裁判、宿主 LLM 出稿：对需要回复的消息起草 2~3 条候选回复（各附一句“为什么这么回”），**只推给主人参考，永不代发到任何会话**。
+- `/reply <文本>` 或引用一条消息后发 `/reply` — 立即起草（explicit 触发，默认模式）；
+- `risk` 触发模式：仅白名单会话内，Jev 判定「关注意图 / 高风险」且置信度达标时起草并推主人，原会话零感知；
+- 费用分层：Jev 判定与 LLM 起草分开计数，起草受冷却 + 每日起草上限 + 总额度三重闸门；
+- 失败降级：LLM 不可用 / Jev 超时 → 提示“起草失败”并带错误摘要，不崩、不刷屏。
 
 ---
 
@@ -83,6 +91,15 @@
 | `max_chars_per_msg` | int | `800` | 单条消息裁剪长度 |
 | `result_style` | string | `详细` | 结果样式：`详细` / `简洁` |
 | `log_decisions` | bool | `false` | 记录判定日志（仅哈希，无原文） |
+| `reply_copilot_enabled` | bool | `false` | 回复副驾总开关（默认关闭） |
+| `trigger_mode` | string | `explicit` | 触发模式：`explicit`=仅 /reply；`risk`=白名单内 Jev 触发 |
+| `draft_count` | int | `3` | 候选回复条数（2~3） |
+| `draft_style` | string | `concise` | 风格：`concise` / `polite` / `firm` |
+| `cooldown_minutes` | int | `10` | 同会话起草冷却（分钟，0=不冷却） |
+| `max_drafts_per_day` | int | `20` | 每日 LLM 起草上限（0=不限） |
+| `notify_target` | string | `""` | 副驾推送目标（主人 UMO）；risk 模式留空则只记录不推送 |
+| `copilot_whitelist` | list | `[]` | risk 模式白名单（UMO / 群号；空=risk 完全不触发） |
+| `llm_provider_id` | string | `""` | 起草用 LLM Provider（留空=会话默认） |
 
 ---
 
@@ -131,7 +148,7 @@
 - [ ] 上架 AstrBot 插件市场（需先推送到 GitHub 公开仓库并在 <https://cloud.astrbot.app/publish> 发布）
 - [ ] 补充插件 Logo（`logo.png`，1:1，推荐 256×256）
 - [ ] 支持自定义意图标签集（通过配置传入 criteria）
-- [ ] 支持接入宿主 AstrBot 的 LLM 对高风险消息做「解释/建议」
+- [x] 支持接入宿主 AstrBot 的 LLM 对高风险消息做「解释/建议」（v1.1.0 回复副驾已实现）
 - [ ] 扩样到 100~200 条真实脱敏中文语料复测并与 LLM 基线对照
 - [ ] 支持多意图加权（利用 `probabilities` 全分布）
 
@@ -153,7 +170,7 @@
   }
   ```
 - 选用 `choice` 原语（而非 `score`）的原因：`choice` 的返回字段（`choice` / `probabilities` / `confidence`）经实测确认，解析稳定。
-- 模块划分：`main.py`（AstrBot 集成）/ `jev_client.py`（异步 HTTP）/ `radar_core.py`（纯逻辑，可离线单测）。
+- 模块划分：`main.py`（AstrBot 集成）/ `jev_client.py`（异步 HTTP）/ `radar_core.py`（纯逻辑）/ `reply_copilot.py`（回复副驾纯逻辑，均可离线单测）。
 
 ---
 
@@ -166,6 +183,7 @@
 
 ## 📝 更新日志
 
+- **v1.1.0（2026-09-22）· 回复副驾** — 新增 Reply Copilot：触发式（explicit /risk）起草候选回复、只推主人、永不代发、费用分层与三重闸门；不含任何无差别推送。
 - **v1.0.0（2026-09-21）· 首发** — 被动监听 + 主动 `/jev` 判定、`/jev dry` 试运行、费用保护、本地脱敏。
 - 完整变更记录见 [`CHANGELOG.md`](./CHANGELOG.md)。
 

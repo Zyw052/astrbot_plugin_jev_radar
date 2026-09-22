@@ -3,6 +3,22 @@
 本文件记录 `astrbot_plugin_jev_radar`（Jev 意图雷达）的版本变更。
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.1.0] - 2026-09-22
+
+### 新增 Added
+- **回复副驾（Reply Copilot）**：新模块，Jev 当裁判、宿主 LLM 出稿，为需要回复的消息起草 2~3 条候选回复（各附一句“为什么这么回”）；风格可配（`concise` / `polite` / `firm`）。
+- **触发式设计 · 绝不无差别推送**：
+  - `explicit`（默认）：只有主人主动发送 `/reply`（可引用消息）才起草；
+  - `risk`：仅 `copilot_whitelist` 白名单会话内，且 Jev 判定「关注意图 / 高风险」**且** 置信度达标时才起草；
+  - 总开关 `reply_copilot_enabled` **默认关闭**，从配置层面杜绝任何全量自动推送。
+- **费用分层保护**：Jev 判定（便宜）与 LLM 起草（贵）**分开计数**；LLM 起草仅在触发时调用，并受 `cooldown_minutes`（同会话冷却，默认 10）+ `max_drafts_per_day`（默认 20）+ 既有 `daily_call_limit` 三重闸门保护。
+- **只推主人，永不代发**：候选回复只投递给 `notify_target`（主人会话）；代码层面不存在任何向原消息会话发送草稿的路径；风险触发在原会话**零感知**。
+
+### 说明 Notes
+- 起草调用 AstrBot 内部 LLM Provider（新式 `llm_generate`，v4.5.7+）；失败时透明降级为“起草失败 + 错误摘要”，不影响原功能。
+- 隐私：担任副驾时，脱敏后的消息文本会发往宿主 LLM；Jev 判定依旧走 TypeSafe（详见 README 隐私声明）。
+- 兼容性：1.0.x 全部功能与配置不变，历史 38 项单测保留并通过。
+
 ## [1.0.1] - 2026-09-21
 
 ### 新增 Added
@@ -30,5 +46,6 @@
 ### 许可 License
 - MIT © 2026 **YongWei**
 
+[1.1.0]: https://github.com/Zyw052/astrbot_plugin_jev_radar/releases/tag/v1.1.0
 [1.0.1]: https://github.com/Zyw052/astrbot_plugin_jev_radar/releases/tag/v1.0.1
 [1.0.0]: https://github.com/Zyw052/astrbot_plugin_jev_radar/releases/tag/v1.0.0

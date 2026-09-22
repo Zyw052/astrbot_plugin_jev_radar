@@ -108,5 +108,61 @@
     "type": "bool",
     "hint": "开启后将判定结果写入 data/plugin_data/ 下的 decisions.jsonl（仅含消息哈希，不含原文），默认关闭。",
     "default": false
+  },
+  "reply_copilot_enabled": {
+    "description": "启用回复副驾",
+    "type": "bool",
+    "hint": "回复副驾（Reply Copilot）总开关。默认关闭；开启后也仅按 trigger_mode 触发，绝不无差别推送。",
+    "default": false
+  },
+  "trigger_mode": {
+    "description": "副驾触发模式",
+    "type": "string",
+    "options": ["explicit", "risk"],
+    "hint": "explicit=仅主人主动 /reply 指令触发（默认，最保守）；risk=仅 copilot_whitelist 白名单会话内，Jev 判定关注意图/高风险且置信度达标时才起草并推送给主人，原会话永无感知。",
+    "default": "explicit"
+  },
+  "draft_count": {
+    "description": "候选回复条数",
+    "type": "int",
+    "hint": "每次起草生成的候选回复条数（2~3），默认 3。",
+    "default": 3
+  },
+  "draft_style": {
+    "description": "回复风格",
+    "type": "string",
+    "options": ["concise", "polite", "firm"],
+    "hint": "concise=简洁直接 / polite=礼貌得体 / firm=明确坚定，默认 concise。",
+    "default": "concise"
+  },
+  "cooldown_minutes": {
+    "description": "同会话起草冷却（分钟）",
+    "type": "int",
+    "hint": "risk 模式下同一会话两次 LLM 起草之间的最短间隔，默认 10 分钟；0 表示不冷却（不建议）。费用保护项。",
+    "default": 10
+  },
+  "max_drafts_per_day": {
+    "description": "每日起草上限",
+    "type": "int",
+    "hint": "费用保护：每日最多 LLM 起草次数（Jev 判定不占此额度，单独计数），0 表示不限，默认 20。",
+    "default": 20
+  },
+  "notify_target": {
+    "description": "副驾推送目标",
+    "type": "string",
+    "hint": "risk 模式下候选回复只推送给主人的会话标识（UMO，如 aiocqhttp:FriendMessage:xxxx）。留空则 risk 模式只记录不推送。副驾永不向原会话发送任何内容。",
+    "default": ""
+  },
+  "copilot_whitelist": {
+    "description": "副驾白名单（risk 模式）",
+    "type": "list",
+    "hint": "risk 模式仅在这些会话内生效（UMO 或群号）。留空=risk 模式完全不触发，最保守。",
+    "default": []
+  },
+  "llm_provider_id": {
+    "description": "起草用 LLM Provider",
+    "type": "string",
+    "hint": "留空=使用主人当前会话的默认 LLM Provider。可选填指定 provider id。",
+    "default": ""
   }
 }
