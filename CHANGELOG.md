@@ -3,6 +3,17 @@
 本文件记录 `astrbot_plugin_jev_radar`（Jev 意图雷达）的版本变更。
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.2.0] - 2026-09-23
+
+### 新增 Added
+- **判定统计命令 `/jev_stats`**（别名：`雷达统计` / `radar_stats`）：查看今日判定调用与副驾起草额度使用、历史判定记录总数、意图分布 Top5 与风险分布；`log_decisions` 未开启时给出提示。`/jev stats` 会提示使用 `/jev_stats`。
+
+### 修复与健壮性 Fixed
+- **KV 额度持久化不再静默降级**：`daily_usage` / `reply_draft_usage` 读写失败时输出警告日志（原为静默退回内存计数，重启后额度丢失且无法排查）。
+
+### 说明 Notes
+- 版本号 1.1.0 → 1.2.0（minor）：新增用户可见命令 `/jev_stats`，向后兼容。
+
 ## [1.1.0] - 2026-09-22
 
 ### 新增 Added
@@ -46,6 +57,7 @@
 ### 许可 License
 - MIT © 2026 **YongWei**
 
+[1.2.0]: https://github.com/Zyw052/astrbot_plugin_jev_radar/releases/tag/v1.2.0
 [1.1.0]: https://github.com/Zyw052/astrbot_plugin_jev_radar/releases/tag/v1.1.0
 [1.0.1]: https://github.com/Zyw052/astrbot_plugin_jev_radar/releases/tag/v1.0.1
 [1.0.0]: https://github.com/Zyw052/astrbot_plugin_jev_radar/releases/tag/v1.0.0

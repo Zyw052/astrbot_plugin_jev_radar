@@ -158,7 +158,10 @@ class JevRadarPlugin(Star):
         data: dict[str, Any] = {}
         try:
             data = await self.get_kv_data("daily_usage", {}) or {}
-        except Exception:  # noqa: BLE001 - 旧版本无 KV 则退回内存
+        except Exception as e:  # noqa: BLE001 - 旧版本无 KV 则退回内存，但必须留下痕迹
+            logger.warning(
+                "[Jev雷达] KV 读取判定计数失败，退回内存计数（重启后额度会丢失）：%s", e
+            )
             data = self._usage_cache
         if not isinstance(data, dict) or data.get("date") != today:
             data = {"date": today, "count": 0}
@@ -172,8 +175,11 @@ class JevRadarPlugin(Star):
             self._usage_cache = data
             try:
                 await self.put_kv_data("daily_usage", data)
-            except Exception:  # noqa: BLE001
-                pass
+            except Exception as e:  # noqa: BLE001 - 写失败同样要留痕，便于排查费用额度漂移
+                logger.warning(
+                    "[Jev雷达] KV 写入判定计数失败，额度仅在本进程内存生效（重启后今日额度会丢失）：%s",
+                    e,
+                )
             return data["count"]
 
     async def _check_quota(self) -> bool:
@@ -194,7 +200,10 @@ class JevRadarPlugin(Star):
         data: dict[str, Any] = {}
         try:
             data = await self.get_kv_data("reply_draft_usage", {}) or {}
-        except Exception:  # noqa: BLE001 - 无 KV 则退回内存
+        except Exception as e:  # noqa: BLE001 - 无 KV 则退回内存，但留下痕迹
+            logger.warning(
+                "[Jev雷达] KV 读取起草计数失败，退回内存计数（重启后起草额度会丢失）：%s", e
+            )
             data = self._draft_usage_cache
         if not isinstance(data, dict) or data.get("date") != today:
             data = {"date": today, "drafts": 0}
@@ -208,8 +217,11 @@ class JevRadarPlugin(Star):
             self._draft_usage_cache = data
             try:
                 await self.put_kv_data("reply_draft_usage", data)
-            except Exception:  # noqa: BLE001
-                pass
+            except Exception as e:  # noqa: BLE001
+                logger.warning(
+                    "[Jev雷达] KV 写入起草计数失败，额度仅在本进程内存生效（重启后丢失）：%s",
+                    e,
+                )
             return int(data["drafts"])
 
     async def _check_draft_budget(self, umo: str | None) -> tuple[bool, str]:
@@ -376,6 +388,71 @@ class JevRadarPlugin(Star):
             logger.debug("[Jev雷达] 写判定日志失败：%s", e)
 
     # ------------------------------------------------------------------
+    # 判定统计（/jev_stats）
+    # ------------------------------------------------------------------
+
+    def _stats_10d(self) -> dict:
+        """读取历史判定日志汇总（decisions.jsonl；log_decisions 关闭时为空）。"""
+        out = {"total": 0, "by_intent": {}, "by_risk": {}}
+        try:
+            path = self._data_dir() / "decisions.jsonl"
+            if not path.exists():
+                return out
+            with path.open("r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        rec = json.loads(line)
+                    except Exception:  # noqa: BLE001 - 单行坏坯跳过
+                        continue
+                    if not isinstance(rec, dict):
+                        continue
+                    out["total"] += 1
+                    intent = str(rec.get("intent") or "未知")
+                    risk = str(rec.get("risk_level") or rec.get("risk") or "未知")
+                    out["by_intent"][intent] = out["by_intent"].get(intent, 0) + 1
+                    out["by_risk"][risk] = out["by_risk"].get(risk, 0) + 1
+        except Exception as e:  # noqa: BLE001
+            logger.debug("[Jev雷达] 读取判定统计失败：%s", e)
+        return out
+
+    @filter.command("jev_stats", alias={"雷达统计", "radar_stats"})
+    async def jev_stats_cmd(self, event: AstrMessageEvent):
+        """查看判定统计：/jev_stats —— 今日调用/起草额度与历史意图/风险分布。"""
+        if not self.enabled:
+            yield event.plain_result("Jev 意图雷达当前已关闭（enable=false）。")
+            return
+        today = date.today().isoformat()
+        try:
+            usage = await self._get_usage()
+            drafts = await self._get_draft_usage()
+            judge_count = int(usage.get("count", 0)) if usage.get("date") == today else 0
+            draft_count = int(drafts.get("drafts", 0)) if drafts.get("date") == today else 0
+        except Exception as e:  # noqa: BLE001
+            logger.warning("[Jev雷达] 读取额度计数失败：%s", e)
+            judge_count, draft_count = 0, 0
+
+        limit = int(self._cfg("daily_call_limit", 2000) or 0)
+        stats = self._stats_10d()
+        lines = [
+            "📊 Jev 意图雷达 · 统计",
+            f"今日判定调用：{judge_count}" + (f" / {limit}" if limit > 0 else "（未限额）"),
+            f"今日副驾起草：{draft_count}",
+            f"历史判定记录总数：{stats['total']}",
+        ]
+        if stats["by_intent"]:
+            top = sorted(stats["by_intent"].items(), key=lambda x: -x[1])[:5]
+            lines.append("意图分布 Top5：" + "、".join(f"{k}×{v}" for k, v in top))
+        if stats["by_risk"]:
+            top_r = sorted(stats["by_risk"].items(), key=lambda x: -x[1])[:5]
+            lines.append("风险分布：" + "、".join(f"{k}×{v}" for k, v in top_r))
+        if not bool(self._cfg("log_decisions", False)):
+            lines.append("提示：log_decisions 未开启，历史分布不可用；开启后自动累积。")
+        yield event.plain_result("\n".join(lines))
+
+    # ------------------------------------------------------------------
     # 主动指令
     # ------------------------------------------------------------------
 
@@ -401,6 +478,9 @@ class JevRadarPlugin(Star):
                 rest = head[1].strip() if len(head) > 1 else ""
 
         text = rest
+        if rest.lower() == "stats" and not text:
+            yield event.plain_result("统计请使用：/jev_stats（别名：雷达统计）。")
+            return
         if not text:
             text = self._extract_reply_text(event)
 
